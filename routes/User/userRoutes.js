@@ -29,9 +29,9 @@ userRoute.get('/getAll', verifyToken, userController.getAllUser);
 userRoute.post('/add', userController.createUser);
 userRoute.delete('/delete', verifyToken, userController.deleteUser);
 userRoute.patch('/updateProfileImage', upload.single('image'), verifyToken, userController.updateProfileImage);
-userRoute.get('/search', verifyToken, userController.getUser);
 
 userRoute.post('/login', userController.login);
+userRoute.post('/logout', verifyToken, userController.logout);
 userRoute.get('/filterEmail', userController.filterEmail);
 userRoute.get('/sortByEmail', userController.sortByUserEmail);
 

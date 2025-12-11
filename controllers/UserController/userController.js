@@ -66,7 +66,7 @@ const getAllUser = async (req, res) => {
             if (error) {
                 console.error('Database error:', error);
                 return res.status(500).json({
-                    status: 999,
+                    status: 500,
                     message: "System error"
                 });
             }
@@ -80,10 +80,6 @@ const getAllUser = async (req, res) => {
             });
         }
     );
-}
-
-const getUser = async (req, res) => {
-    console.log('Get User Endpoint');
 }
 
 const updateProfileImage = async (req, res) => {
@@ -165,11 +161,11 @@ const login = async (req, res) => {
         connection.execute(
             `SELECT * FROM users WHERE email = ? AND password = ?`,
             [req.body.email, req.body.password],
-            (error, rows, fields) => {
+            async (error, rows, fields) => {
                 if (error) {
                     console.error('Database error:', error);
                     return res.status(500).json({
-                        status: 999,
+                        status: 500,
                         message: "System error"
                     });
                 }
@@ -209,14 +205,23 @@ const login = async (req, res) => {
                         { expiresIn: '7d' }
                     );
 
-                    refreshTokens.push(refreshToken);
+                    await connection.execute(
+                        `UPDATE users 
+                          SET refresh_token = ?
+                          WHERE id = ?`,
+                        [
+                            refreshToken,
+                            user.id
+                        ]
+                    );
 
                     // Login berhasil
                     res.status(200).json({
-                        status: 0,
+                        status: 200,
                         message: "Login Sukses",
                         data: {
                             token: token,
+                            refreshToken: refreshToken
                         }
                     });
                 }
@@ -224,6 +229,28 @@ const login = async (req, res) => {
         );
     }
 }
+
+const logout = async (req, res) => {
+    console.log('Logout Endpoint');
+    // console.log('req.body ', req.body)
+
+    let userID = req.user.user_id
+    console.log('user id ', userID)
+    connection.execute(
+        `UPDATE users 
+    SET refresh_token = null
+    WHERE id = ?`,
+        [
+            userID
+        ]
+    );
+
+    res.status(200).json({
+        status: 200,
+        message: "Logout Sukses",
+    });
+}
+
 
 //Filter email user
 const filterEmail = async (req, res) => {
@@ -251,7 +278,7 @@ const filterEmail = async (req, res) => {
             if (error) {
                 console.error('Database error:', error);
                 return res.status(500).json({
-                    status: 999,
+                    status: 500,
                     message: "System error"
                 });
             }
@@ -292,7 +319,7 @@ const sortByUserEmail = async (req, res) => {
             if (error) {
                 console.error('Database error:', error);
                 return res.status(500).json({
-                    status: 999,
+                    status: 500,
                     message: "System error"
                 });
             }
@@ -312,10 +339,10 @@ const sortByUserEmail = async (req, res) => {
 module.exports = {
     createUser,
     getAllUser,
-    getUser,
     updateProfileImage,
     deleteUser,
     login,
+    logout,
     filterEmail,
     sortByUserEmail
 }

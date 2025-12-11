@@ -11,7 +11,8 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, 'nutech9123');
+    const decoded = jwt.verify(token, 'testing_secret_key_7243795');
+    // console.log('decoded ', decoded);
     req.user = decoded;
     next();
   } catch (error) {

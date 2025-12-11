@@ -32,5 +32,7 @@ userRoute.patch('/updateProfileImage', upload.single('image'), verifyToken, user
 userRoute.get('/search', verifyToken, userController.getUser);
 
 userRoute.post('/login', userController.login);
+userRoute.get('/filterEmail', userController.filterEmail);
+userRoute.get('/sortByEmail', userController.sortByUserEmail);
 
 module.exports = userRoute;

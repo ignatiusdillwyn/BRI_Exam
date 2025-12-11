@@ -5,7 +5,7 @@ const connection = require('../../config/database');
 const jwt = require('jsonwebtoken');
 
 const validateEmail = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|yahoo)\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
 };
 
@@ -16,6 +16,8 @@ const validatePassword = (password) => {
         return true;
     }
 }
+
+let refreshTokens = [];
 
 const createUser = async (req, res) => {
     console.log('Create User Endpoint');
@@ -48,7 +50,7 @@ const createUser = async (req, res) => {
         );
 
         return res.status(200).json({
-            status: 0,
+            status: 200,
             message: "Registrasi berhasil",
             // date: null
         });
@@ -68,7 +70,7 @@ const getAllUser = async (req, res) => {
                     message: "System error"
                 });
             }
-            console.log(rows);
+            // console.log(rows);
             const result = rows
 
             res.status(200).json({
@@ -109,7 +111,7 @@ const updateProfileImage = async (req, res) => {
     }
 
     return res.status(200).json({
-        status: 0,
+        status: 200,
         message: "Update Profile Image berhasil",
         data: {
             email: userData.email,
@@ -123,6 +125,23 @@ const updateProfileImage = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     console.log('Delete User Endpoint');
+    let userData = req.user
+    let userID = userData.user_id
+    connection.execute(
+        `DELETE FROM users WHERE id = ?`,
+        [userID]
+    );
+
+    return res.status(200).json({
+        status: 200,
+        message: "Delete Profile berhasil",
+        // data: {
+        //     email: userData.email,
+        //     first_name: userData.first_name,
+        //     last_name: userData.last_name,
+        //     profile_image: req.file.filename
+        // }
+    });
 }
 
 const login = async (req, res) => {
@@ -178,6 +197,20 @@ const login = async (req, res) => {
                         { expiresIn: '12h' } // Token berlaku 12 jam
                     );
 
+                    const refreshToken = jwt.sign(
+                        {
+                            user_id: user.id,
+                            email: user.email,
+                            first_name: user.first_name,
+                            last_name: user.last_name,
+                            profile_image: user.profile_image
+                        },
+                        secretKey,
+                        { expiresIn: '7d' }
+                    );
+
+                    refreshTokens.push(refreshToken);
+
                     // Login berhasil
                     res.status(200).json({
                         status: 0,
@@ -192,11 +225,97 @@ const login = async (req, res) => {
     }
 }
 
+//Filter email user
+const filterEmail = async (req, res) => {
+    console.log('Filter Email Endpoint');
+    // console.log('req.body ', req.body)
+
+    if (!req.body.email) {
+        return res.status(400).json({
+            status: 102,
+            message: 'Parameter email tidak boleh kosong',
+        });
+    }
+
+    if (req.body.email !== 'gmail' && req.body.email !== 'yahoo') {
+        return res.status(400).json({
+            status: 102,
+            message: 'Format Email Tidak Valid, masukkan gmail atau yahoo',
+        });
+    }
+    let filterEmail = req.body.email
+    connection.execute(
+        `SELECT * FROM users WHERE email LIKE CONCAT('%', ?, '%')`,
+        [filterEmail],
+        (error, rows, fields) => {
+            if (error) {
+                console.error('Database error:', error);
+                return res.status(500).json({
+                    status: 999,
+                    message: "System error"
+                });
+            }
+
+            let result = rows
+            console.log('result ', result)
+
+            return res.status(200).json({
+                status: 200,
+                message: "Filter Berhasil",
+                data: result
+            });
+        }
+    );
+}
+
+const sortByUserEmail = async (req, res) => {
+    console.log('Sort User Endpoint');
+    // console.log('req.body ', req.body)
+
+    if (!req.body.sortType) {
+        return res.status(400).json({
+            status: 102,
+            message: 'Parameter sortType tidak boleh kosong',
+        });
+    }
+
+    if (req.body.sortType !== 'asc' && req.body.sortType !== 'desc') {
+        return res.status(400).json({
+            status: 102,
+            message: 'Masukkan asc atau desc',
+        });
+    }
+    let sortType = req.body.sortType
+    connection.execute(
+        `SELECT * FROM users ORDER BY email ${sortType.toUpperCase()}`,
+        (error, rows, fields) => {
+            if (error) {
+                console.error('Database error:', error);
+                return res.status(500).json({
+                    status: 999,
+                    message: "System error"
+                });
+            }
+
+            let result = rows
+            console.log('result ', result)
+
+            return res.status(200).json({
+                status: 200,
+                message: "Sort Berhasil",
+                data: result
+            });
+        }
+    );
+}
+
 module.exports = {
     createUser,
     getAllUser,
     getUser,
     updateProfileImage,
     deleteUser,
-    login
+    login,
+    filterEmail,
+    sortByUserEmail
 }

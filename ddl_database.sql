@@ -1,38 +1,24 @@
-CREATE DATABASE `exam`
+CREATE DATABASE `bri_exam`
 
 CREATE TABLE `users` (
-  `id` varchar(36) NOT NULL DEFAULT (uuid()),
+  `id` int NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `profile_image` varchar(500) DEFAULT NULL,
-  `balance` int NOT NULL DEFAULT '0',
+  `refresh_token` varchar(700) DEFAULT NULL,
   PRIMARY KEY (`id`),
-)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `transaction` (
-  `id` varchar(36) NOT NULL DEFAULT (uuid()),
-  `user_id` varchar(200) NOT NULL,
-  `nominal` int NOT NULL,
-  `type` varchar(50) NOT NULL,
+CREATE TABLE `products` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `qty` int NOT NULL,
   `description` varchar(500) NOT NULL,
-  `created_on` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `inv` varchar(200) NOT NULL,
+  `product_image` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `transaction_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-)
-
-CREATE TABLE `services` (
-  `code` varchar(20) DEFAULT NULL,
-  `name` varchar(200) NOT NULL,
-  `icon` varchar(400) NOT NULL,
-  `tarif` int NOT NULL
-)
-
-CREATE TABLE `banner` (
-  `name` varchar(20) DEFAULT NULL,
-  `image` varchar(200) NOT NULL,
-  `description` text
-)
+  CONSTRAINT `products_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

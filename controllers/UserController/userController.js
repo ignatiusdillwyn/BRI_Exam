@@ -25,13 +25,13 @@ const createUser = async (req, res) => {
     // Validate email and password
     if (!validateEmail(req.body.email)) {
         return res.status(400).json({
-            status: 102,
+            status: 400,
             message: 'Parameter email tidak sesuai format',
             data: null
         });
     } else if (!validatePassword(req.body.password)) {
         return res.status(400).json({
-            status: 102,
+            status: 400,
             message: 'Password minimal 8 karakter',
             data: null
         });
@@ -70,12 +70,12 @@ const getAllUser = async (req, res) => {
                     message: "System error"
                 });
             }
-            // console.log(rows);
+            
             const result = rows
 
             res.status(200).json({
                 status: 200,
-                message: "Sukses",
+                message: "Success Get All Users",
                 data: result
             });
         }
@@ -84,13 +84,12 @@ const getAllUser = async (req, res) => {
 
 const updateProfileImage = async (req, res) => {
     console.log('Update User Endpoint');
-    console.log('req.file ', req.file);
     const userData = req.user;
     // Validasi img must jpeg/jpg/png
     const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedMimes.includes(req.file.mimetype)) {
         return res.status(400).json({
-            status: 102,
+            status: 400,
             message: 'Format Image tidak sesuai',
             data: null
         });
@@ -109,14 +108,13 @@ const updateProfileImage = async (req, res) => {
     return res.status(200).json({
         status: 200,
         message: "Update Profile Image berhasil",
-        data: {
-            email: userData.email,
-            first_name: userData.first_name,
-            last_name: userData.last_name,
-            profile_image: req.file.filename
-        }
+        // data: {
+        //     email: userData.email,
+        //     first_name: userData.first_name,
+        //     last_name: userData.last_name,
+        //     profile_image: req.file.filename
+        // }
     });
-
 }
 
 const deleteUser = async (req, res) => {
@@ -131,12 +129,6 @@ const deleteUser = async (req, res) => {
     return res.status(200).json({
         status: 200,
         message: "Delete Profile berhasil",
-        // data: {
-        //     email: userData.email,
-        //     first_name: userData.first_name,
-        //     last_name: userData.last_name,
-        //     profile_image: req.file.filename
-        // }
     });
 }
 
@@ -216,7 +208,7 @@ const login = async (req, res) => {
                     );
 
                     // Login berhasil
-                    res.status(200).json({
+                    return res.status(200).json({
                         status: 200,
                         message: "Login Sukses",
                         data: {
@@ -235,7 +227,7 @@ const logout = async (req, res) => {
     // console.log('req.body ', req.body)
 
     let userID = req.user.user_id
-    console.log('user id ', userID)
+
     connection.execute(
         `UPDATE users 
     SET refresh_token = null
@@ -245,7 +237,7 @@ const logout = async (req, res) => {
         ]
     );
 
-    res.status(200).json({
+    return res.status(200).json({
         status: 200,
         message: "Logout Sukses",
     });
@@ -255,7 +247,6 @@ const logout = async (req, res) => {
 //Filter email user
 const filterEmail = async (req, res) => {
     console.log('Filter Email Endpoint');
-    // console.log('req.body ', req.body)
 
     if (!req.body.email) {
         return res.status(400).json({
@@ -284,7 +275,6 @@ const filterEmail = async (req, res) => {
             }
 
             let result = rows
-            console.log('result ', result)
 
             return res.status(200).json({
                 status: 200,
@@ -297,7 +287,6 @@ const filterEmail = async (req, res) => {
 
 const sortByUserEmail = async (req, res) => {
     console.log('Sort User Endpoint');
-    // console.log('req.body ', req.body)
 
     if (!req.body.sortType) {
         return res.status(400).json({
@@ -325,7 +314,6 @@ const sortByUserEmail = async (req, res) => {
             }
 
             let result = rows
-            console.log('result ', result)
 
             return res.status(200).json({
                 status: 200,

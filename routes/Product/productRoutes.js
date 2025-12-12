@@ -7,10 +7,30 @@ const path = require('path');
 
 const productRoute = require('express').Router();
 
-productRoute.get('/getAll', productController.getAllProduct);
-productRoute.post('/add', productController.createProduct);
+// Konfigurasi multer untuk menyimpan file
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/') // Folder penyimpanan
+    },
+    filename: function (req, file, cb) {
+      // Nama file: timestamp + original name
+      const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
+      cb(null, uniqueName);
+    }
+  });
+  
+  const upload = multer({
+    storage: storage,
+    limits: {
+      fileSize: 5 * 1024 * 1024 // 5MB
+    },
+  });
+
+productRoute.get('/getAll', verifyToken, productController.getAllProduct);
+productRoute.post('/add', verifyToken, productController.createProduct);
 productRoute.delete('/delete', productController.deleteProduct);
-productRoute.patch('/update', productController.updateProduct);
-productRoute.get('/search', productController.getProduct);
+productRoute.patch('/update', verifyToken, productController.updateProduct);
+productRoute.patch('/updateProductImage', upload.single('image'), productController.updateProductImage);
+productRoute.get('/search', verifyToken, productController.getProduct);
 
 module.exports = productRoute;

@@ -28,11 +28,11 @@ const storage = multer.diskStorage({
 userRoute.get('/getAll', verifyToken, userController.getAllUser);
 userRoute.post('/add', userController.createUser);
 userRoute.delete('/delete', verifyToken, userController.deleteUser);
-userRoute.patch('/updateProfileImage', upload.single('image'), verifyToken, userController.updateProfileImage);
+userRoute.patch('/updateProfileImage', verifyToken, upload.single('image'), verifyToken, userController.updateProfileImage);
 
 userRoute.post('/login', userController.login);
 userRoute.post('/logout', verifyToken, userController.logout);
-userRoute.get('/filterEmail', userController.filterEmail);
-userRoute.get('/sortByEmail', userController.sortByUserEmail);
+userRoute.get('/filterEmail', verifyToken, userController.filterEmail);
+userRoute.get('/sortByEmail', verifyToken, userController.sortByUserEmail);
 
 module.exports = userRoute;

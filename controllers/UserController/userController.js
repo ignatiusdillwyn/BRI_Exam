@@ -70,7 +70,7 @@ const getAllUser = async (req, res) => {
                     message: "System error"
                 });
             }
-            
+
             const result = rows
 
             res.status(200).json({
@@ -108,12 +108,6 @@ const updateProfileImage = async (req, res) => {
     return res.status(200).json({
         status: 200,
         message: "Update Profile Image berhasil",
-        // data: {
-        //     email: userData.email,
-        //     first_name: userData.first_name,
-        //     last_name: userData.last_name,
-        //     profile_image: req.file.filename
-        // }
     });
 }
 
@@ -332,5 +326,7 @@ module.exports = {
     login,
     logout,
     filterEmail,
-    sortByUserEmail
+    sortByUserEmail,
+    validateEmail,
+    validatePassword
 }
